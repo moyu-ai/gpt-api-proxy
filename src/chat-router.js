@@ -9,12 +9,6 @@ const openai = new OpenAI({
 })
 
 router.get('/api/gpt/chat', async (ctx, next) => {
-  ctx.set('Access-Control-Allow-Origin', '*')
-  ctx.set(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  )
-
   const query = ctx.query || {}
 
   // 简单的密钥
