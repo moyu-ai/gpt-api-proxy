@@ -42,6 +42,11 @@ router.get('/api/gpt/chat', async (ctx, next) => {
   for await (const chunk of gptStream) {
     console.log('chunk: ', chunk)
     ctx.res.write(`data: ${JSON.stringify(chunk)}\n\n`) // 格式必须是 `data: xxx\n\n` ！！！
+
+    if (chunk.choices[0].delta.content == null) {
+      ctx.res.end(`data: [DONE]`)
+      break
+    }
   }
 
   ctx.req.on('close', () => {
