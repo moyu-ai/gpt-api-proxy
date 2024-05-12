@@ -37,6 +37,7 @@ router.get('/api/gpt/chat', async (ctx, next) => {
     ...option,
   })
 
+  ctx.status = 200
   ctx.set('Content-Type', 'text/event-stream') // 'text/event-stream' 标识 SSE 即 Server-Sent Events
 
   for await (const chunk of gptStream) {
