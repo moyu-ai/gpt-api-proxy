@@ -9,6 +9,12 @@ const openai = new OpenAI({
 })
 
 router.get('/api/gpt/chat', async (ctx, next) => {
+  ctx.set('Access-Control-Allow-Origin', '*')
+  ctx.set(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  )
+
   const query = ctx.query || {}
 
   // 简单的密钥
@@ -44,7 +50,7 @@ router.get('/api/gpt/chat', async (ctx, next) => {
     ctx.res.write(`data: ${JSON.stringify(chunk)}\n\n`) // 格式必须是 `data: xxx\n\n` ！！！
 
     if (chunk.choices[0].delta.content == null) {
-      ctx.res.end(`data: [DONE]`)
+      ctx.res.write(`data: [DONE]`)
       break
     }
   }
