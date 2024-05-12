@@ -23,6 +23,11 @@ router.get('/api/gpt/chat', async (ctx, next) => {
   const decodeOptionStr = decodeURIComponent(optionStr)
   const option = JSON.parse(decodeOptionStr)
 
+  if (!option.messages) {
+    ctx.body = 'invalid option: messages required'
+    return
+  }
+
   // request GPT API
   const gptStream = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo',
@@ -35,6 +40,7 @@ router.get('/api/gpt/chat', async (ctx, next) => {
   ctx.set('Content-Type', 'text/event-stream') // 'text/event-stream' 标识 SSE 即 Server-Sent Events
 
   for await (const chunk of gptStream) {
+    console.log('chunk: ', chunk)
     ctx.res.write(`data: ${JSON.stringify(chunk)}\n\n`) // 格式必须是 `data: xxx\n\n` ！！！
   }
 
