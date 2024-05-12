@@ -9,6 +9,13 @@ const openai = new OpenAI({
 })
 
 router.post('/api/gpt/chat', async (ctx, next) => {
+  // 简单的密钥
+  const authToken = ctx.get('x-auth-token') || '';
+  if (!authToken.trim() || authToken !== process.env.AUTH_TOKEN) {
+    ctx.body = 'invalid token';
+    return;
+  }
+
   const body = ctx.request.body;
 
   const gptStream = await openai.chat.completions.create({
