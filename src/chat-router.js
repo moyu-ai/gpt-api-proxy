@@ -45,7 +45,7 @@ router.get('/api/gpt/chat', async (ctx, next) => {
     ctx.res.write(`data: ${JSON.stringify(chunk)}\n\n`) // 格式必须是 `data: xxx\n\n` ！！！
 
     if (chunk.choices[0].delta.content == null) {
-      ctx.res.write(`data: [DONE]`)
+      ctx.res.end(`data: [DONE]`)
       break
     }
   }
