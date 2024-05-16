@@ -80,7 +80,8 @@ router.get('/api/gpt/chat', async (ctx, next) => {
       ctx.res.write(`data: [DONE]\n\n`)
       break
     }
-    ctx.res.write(`data: ${content}\n\n`) // 格式必须是 `data: xxx\n\n` ！！！
+    const data = { c: content }
+    ctx.res.write(`data: ${JSON.stringify(data)}\n\n`) // 格式必须是 `data: xxx\n\n` ！！！
   }
 })
 
