@@ -78,16 +78,18 @@ router.get('/api/gpt/chat', async (ctx, next) => {
     const { choices = [], usage } = chunk
 
     if (choices.length === 0) {
-      console.log('usage ', usage) // 格式如 {"prompt_tokens":81,"completion_tokens":23,"total_tokens":104}
+      // console.log('usage ', usage) // 格式如 {"prompt_tokens":81,"completion_tokens":23,"total_tokens":104}
+      ctx.res.write(`data: ${JSON.stringify({ usage })}\n\n`)
+
+      // 结束
+      ctx.gptStreamDone = true
+      ctx.res.write(`data: [DONE]\n\n`) // 格式必须是 `data: xxx\n\n`
     }
 
     if (choices.length > 0) {
       const content = chunk.choices[0].delta.content
       console.log('content: ', content)
-      if (content == null) {
-        ctx.gptStreamDone = true
-        ctx.res.write(`data: [DONE]\n\n`) // 格式必须是 `data: xxx\n\n`
-      } else {
+      if (content != null) {
         const data = { c: content }
         ctx.res.write(`data: ${JSON.stringify(data)}\n\n`)
       }
