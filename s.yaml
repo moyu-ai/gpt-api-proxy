@@ -2,7 +2,7 @@ edition: 3.0.0
 name: web-framework-app
 access: 'undefined'
 vars:
-  region: 'cn-hongkong'
+  region: 'ap-southeast-1'
   functionName: 'gpt-api-proxy-prod'
 resources:
   framework:
