@@ -14,11 +14,11 @@ router.get('/api/test/send-email', async (ctx, next) => {
     return
   }
 
-  sendEmail({
+  const res = await sendEmail({
     subject: 'test title 测试标题',
     text: 'test content 测试内容，Date.now ' + Date.now(),
   })
-  ctx.body = 'send email'
+  ctx.body = 'send email' + res.messageId
 })
 
 module.exports = router
