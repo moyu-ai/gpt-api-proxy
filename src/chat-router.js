@@ -1,5 +1,6 @@
 const Router = require('koa-router')
 const { getOpenAIInstance } = require('./lib/openai')
+const { sendEmail } = require('./lib/mailer')
 
 const router = new Router()
 
@@ -44,13 +45,24 @@ router.get('/api/gpt/chat', async (ctx, next) => {
     return
   }
 
+  // get openai instance
+  const instance = getOpenAIInstance()
+  if (instance == null) {
+    const errMsg = 'openai instance is null'
+    console.log('error: ', errMsg)
+    ctx.res.write(`data: [ERROR]${errMsg}\n\n`)
+    return
+  }
+  const formatKey = instance.key.slice(0, 20) + '***'
+  console.log('cur openai key: ', formatKey)
+
   try {
     // get openai instance
     const { openai, key } = getOpenAIInstance()
     console.log('cur openai key: ', `${key.slice(0, 15)}***}`)
 
     // request GPT API
-    gptStream = await openai.chat.completions.create({
+    gptStream = await instance.openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       // messages: [{ role: 'user', content: 'xxx' }],
       max_tokens: 600, // 默认
@@ -69,6 +81,14 @@ router.get('/api/gpt/chat', async (ctx, next) => {
     const errMsg = 'gptStream is not defined'
     console.log('error: ', errMsg)
     ctx.res.write(`data: [ERROR]${errMsg}\n\n`)
+
+    // 记录 error 并发送邮件
+    instance.isError = true
+    sendEmail({
+      subject: `OpenAI API request error, key ${formatKey}`,
+      text: errMsg,
+    })
+
     return
   }
 
