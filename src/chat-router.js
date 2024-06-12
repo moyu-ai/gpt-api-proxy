@@ -55,12 +55,7 @@ router.get('/api/gpt/chat', async (ctx, next) => {
   }
   const formatKey = instance.key.slice(0, 20) + '***'
   console.log('cur openai key: ', formatKey)
-
   try {
-    // get openai instance
-    const { openai, key } = getOpenAIInstance()
-    console.log('cur openai key: ', `${key.slice(0, 15)}***}`)
-
     // request GPT API
     gptStream = await instance.openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
@@ -74,13 +69,6 @@ router.get('/api/gpt/chat', async (ctx, next) => {
     const errMsg = err.message || 'request openai API error'
     console.log('error: ', errMsg)
     ctx.res.write(`data: [ERROR]${errMsg}\n\n`)
-    return
-  }
-
-  if (gptStream == null) {
-    const errMsg = 'gptStream is not defined'
-    console.log('error: ', errMsg)
-    ctx.res.write(`data: [ERROR]${errMsg}\n\n`)
 
     // 记录 error 并发送邮件
     instance.isError = true
@@ -88,7 +76,13 @@ router.get('/api/gpt/chat', async (ctx, next) => {
       subject: `OpenAI API request error, key ${formatKey}`,
       text: errMsg,
     })
+    return
+  }
 
+  if (gptStream == null) {
+    const errMsg = 'gptStream is not defined'
+    console.log('error: ', errMsg)
+    ctx.res.write(`data: [ERROR]${errMsg}\n\n`)
     return
   }
 

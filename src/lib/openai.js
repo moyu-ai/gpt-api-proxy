@@ -18,8 +18,16 @@ const instance2 = {
   isError: false,
 }
 
+// instance3
+const apiKey3 = process.env.OPENAI_API_KEY3
+const instance3 = {
+  openai: new OpenAI({ apiKey: apiKey2 }),
+  key: apiKey3,
+  isError: false,
+}
+
 // instance list
-let instanceList = [instance1, instance2] // 还可以扩展多个
+let instanceList = [instance1, instance2, instance3] // 还可以扩展多个
 let index = 0
 
 function getOpenAIInstance() {
