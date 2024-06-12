@@ -13,6 +13,7 @@ resources:
             touch .env
             echo "OPENAI_API_KEY1=${env(OPENAI_API_KEY1)}" >> .env
             echo "OPENAI_API_KEY2=${env(OPENAI_API_KEY2)}" >> .env
+            echo "OPENAI_API_KEY2=${env(OPENAI_API_KEY2)}" >> .env
             echo "AUTH_TOKEN=${env(AUTH_TOKEN)}" >> .env
             echo "CORS_ORIGIN=${env(CORS_ORIGIN)}" >> .env
             echo "EMAIL_HOST=${env(EMAIL_HOST)}" >> .env
