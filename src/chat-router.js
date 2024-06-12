@@ -1,12 +1,8 @@
-const OpenAI = require('openai')
 const Router = require('koa-router')
-require('dotenv').config()
+const { getOpenAIInstance } = require('./lib/openai')
+const { sendEmail } = require('./lib/mailer')
 
 const router = new Router()
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 router.get('/api/gpt/chat', async (ctx, next) => {
   ctx.status = 200
@@ -49,12 +45,22 @@ router.get('/api/gpt/chat', async (ctx, next) => {
     return
   }
 
+  // get openai instance
+  const instance = getOpenAIInstance()
+  if (instance == null) {
+    const errMsg = 'openai instance is null'
+    console.log('error: ', errMsg)
+    ctx.res.write(`data: [ERROR]${errMsg}\n\n`)
+    return
+  }
+  const formatKey = instance.key.slice(0, 20) + '***'
+  console.log('cur openai key: ', formatKey)
   try {
     // request GPT API
-    gptStream = await openai.chat.completions.create({
+    gptStream = await instance.openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       // messages: [{ role: 'user', content: 'xxx' }],
-      // max_tokens: 100,
+      max_tokens: 600, // 默认
       stream: true, // stream
       stream_options: { include_usage: true },
       ...option,
@@ -62,7 +68,14 @@ router.get('/api/gpt/chat', async (ctx, next) => {
   } catch (err) {
     const errMsg = err.message || 'request openai API error'
     console.log('error: ', errMsg)
-    ctx.res.write(`data: [ERROR]${ex.message}\n\n`)
+    ctx.res.write(`data: [ERROR]${errMsg}\n\n`)
+
+    // 记录 error 并发送邮件
+    instance.isError = true
+    sendEmail({
+      subject: `OpenAI API request error, key ${formatKey}`,
+      text: errMsg,
+    })
     return
   }
 

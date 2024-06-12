@@ -1,0 +1,66 @@
+edition: 3.0.0
+name: web-framework-app
+access: 'undefined'
+vars:
+  region: 'ap-southeast-1'
+  functionName: 'gpt-api-proxy-prod'
+resources:
+  framework:
+    component: fc3
+    actions:
+      pre-deploy:
+        - run: |
+            touch .env
+            echo "OPENAI_API_KEY1=${env(OPENAI_API_KEY1)}" >> .env
+            echo "OPENAI_API_KEY2=${env(OPENAI_API_KEY2)}" >> .env
+            echo "OPENAI_API_KEY2=${env(OPENAI_API_KEY2)}" >> .env
+            echo "AUTH_TOKEN=${env(AUTH_TOKEN)}" >> .env
+            echo "CORS_ORIGIN=${env(CORS_ORIGIN)}" >> .env
+            echo "EMAIL_HOST=${env(EMAIL_HOST)}" >> .env
+            echo "EMAIL_PORT=${env(EMAIL_PORT)}" >> .env
+            echo "EMAIL_USER=${env(EMAIL_USER)}" >> .env
+            echo "EMAIL_PASSWORD=${env(EMAIL_PASSWORD)}" >> .env
+            echo "EMAIL_TO=${env(EMAIL_TO)}" >> .env
+        - run: |
+            export PATH=/usr/local/versions/node/v20.8.1/bin:$PATH
+            npm install
+    props:
+      region: ${vars.region}
+      description: Serverless Devs Web Framework Function
+      runtime: custom.debian10
+      timeout: 60
+      # memorySize: 1024
+      layers:
+        - acs:fc:${vars.region}:official:layers/Nodejs20/versions/1
+      environmentVariables:
+        PATH: >-
+          /opt/nodejs20/bin:/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin
+      customRuntimeConfig:
+        command:
+          - node
+          - src/index.js
+        port: 3002
+      functionName: ${vars.functionName}
+      code: ./
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          triggerConfig:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - HEAD
+              - PATCH
+  fc3_domain_0:
+    component: fc3-domain
+    props:
+      region: ${vars.region}
+      domainName: auto
+      protocol: HTTP
+      routeConfig:
+        routes:
+          - path: /*
+            functionName: ${vars.functionName}
